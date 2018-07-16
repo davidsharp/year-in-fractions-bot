@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html itemscope itemtype="https://schema.org/WebPage" lang="en" class="no-js">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!--<link rel="stylesheet" href="styles.css" type="text/css" />  -->
+  <title>Twitter bot</title>
+  <style>
+    .name{
+          font-family:"courier new"; color:white; letter-spacing: 2px;
+          position: relative; top: 50%; transform: translate3D(0, -50%, 20px);
+    }
+    .name>span{text-align:center; display:block}
+    .circle{
+      border-radius: 50%;
+      width: 500px; height: 500px; margin: auto;
+      background: linear-gradient(0deg, #777, #222); opacity: 8.0;
+      transform-style: preserve-3d;
+    }
+    html{ width: 100%; height:100%;}
+    body{ margin:0; }
+    .block{
+      background: linear-gradient(15deg, #44dd44, #dddd44);
+      text-shadow: -1px 1px 2px #222;
+      flex:1;
+      height: 100vh;
+      overflow-y: hidden;
+    }
+    .inner{height:100%;width:100%;display:flex;flex-wrap:wrap;}
+    .flavour{color:#DCF;font-family: "Courier New", monospace;}
+  </style>
+</head>
+<body>
+  <div class="block">
+    <div class="circle" data-tilt>
+      <h1 class="name">Year In Fractions Bot</h1>
+    </div>
+    <p class="flavour" style="text-align:center">Ever wondered what fraction through the year we are, now we have a bot for making it happen (with the help of uptime robot)</p>
+    <p class="flavour" style="text-align:center">Based on this <a href="https://glitch.com/edit/#!/project/twitterbot">Glitch template</a> by <a href="https://twitter.com/fourtonfish">Stefan Bohacek</a></p>
+  </div>
+</body>
+</html>

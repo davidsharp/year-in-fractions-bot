@@ -16,9 +16,7 @@ var path = require('path'),
     stream = T.stream('statuses/sample'),
     FeedParser = require('feedparser'),
     request = require('request'),
-    moment = require('moment-timezone'),
-    phrases = require('./phrases.json'),
-    praises = require('./praises.json');
+    moment = require('moment-timezone');
 moment.tz.setDefault(process.env.TIMEZONE||'Europe/London');
 app.use(express.static('public'));
 
@@ -28,7 +26,7 @@ const signed = `\n(❤️🤖)${process.env.HASHTAG?'\n#'+process.env.HASHTAG:''
 
 app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.log(moment(),afterMidday(moment()))
     T.get('search/tweets', { q: 'yearinfractions', count: 100 }, function(err, data, _response) {
-      if(!data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')))
+      if(moment().isAfter(moment('8:00','H:mm'),'minute') && !data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')).reduce((a,b)=>(a||b),false))
         sendTweet({status:constructFractionString()}, response)
       else response.send("Don't tweet right now")
     })

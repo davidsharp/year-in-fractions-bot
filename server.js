@@ -26,11 +26,22 @@ const signed = `\n(❤️🤖)${process.env.HASHTAG?'\n#'+process.env.HASHTAG:''
 
 app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.log(moment(),afterMidday(moment()))
     T.get('search/tweets', { q: 'yearinfractions', count: 100 }, function(err, data, _response) {
-      if(moment().isAfter(moment('8:00','H:mm'),'minute') && !data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')).reduce((a,b)=>(a||b),false))
+      const isAfterEightAm = moment().isAfter(moment('8:00','H:mm'),'minute')
+      const didPostToday = data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')).reduce((a,b)=>(a||b),false)
+      
+      if(isAfterEightAm && !didPostToday){
+        sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}
+(8AM today is ${moment('8:00','H:mm').format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()}, response)
-      else response.send("Don't tweet right now")
+      }
+      else response.send("Don't tweet right now"+" --- "+moment().format())
     })
 });
+
+app.all("/dm-me/" + process.env.BOT_ENDPOINT,(req,res)=>{
+  //console.log(req._parsedUrl.query)
+  sendDM(req._parsedUrl.query||'test!',process.env.DM_AT,res)
+})
 
 function sendTweet(tweet,response){
   var resp = response;
@@ -45,6 +56,49 @@ function sendTweet(tweet,response){
       resp.sendStatus(200);
     }
   });
+}
+
+function sendDM(_message,recipient,response){
+  var resp = response;
+  
+  T.post("direct_messages/new", {
+    user_id: recipient,
+    text: _message
+  },function(err, data, response) {
+    if (err&&!err.draw){ //code 187
+      if(resp)resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
+      console.log('Error!');
+      console.log(err);
+    }
+    else{
+      if(resp)resp.sendStatus(200);
+    }
+  });
+  
+  /*var message={
+  "event": {
+    "type": "message_create",
+    "message_create": {
+      "target": {
+        "recipient_id": recipient
+      },
+      "message_data": {
+        "text": _message,
+      }
+    }
+  }
+  }
+  T.post('direct_messages/events/new', message, function(err, data, response) {
+    if (err&&!err.draw){ //code 187
+      if(resp)resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
+      console.log('Error!');
+      console.log(err);
+    }
+    else{
+      console.log(data)
+      if(resp)resp.send(response)//resp.sendStatus(200);
+    }
+  });*/
 }
 
 function drawTweet(imgURL,tweet,response,altText = "bot shared image"){ //TODO: handle base64 encoded dataURIs

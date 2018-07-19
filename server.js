@@ -26,12 +26,12 @@ const signed = `\n(❤️🤖)${process.env.HASHTAG?'\n#'+process.env.HASHTAG:''
 
 app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.log(moment(),afterMidday(moment()))
     T.get('search/tweets', { q: 'yearinfractions', count: 100 }, function(err, data, _response) {
-      const isAfterEightAm = moment().isAfter(moment('8:00','H:mm'),'minute')
+      const isAfterEightAm = moment().isAfter(moment().set('hour',8).set('minute',0),'minute')
       const didPostToday = data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')).reduce((a,b)=>(a||b),false)
       
       if(isAfterEightAm && !didPostToday){
         sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}
-(8AM today is ${moment('8:00','H:mm').format()})`,process.env.DM_AT)
+(8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()}, response)
       }
       else response.send("Don't tweet right now"+" --- "+moment().format())

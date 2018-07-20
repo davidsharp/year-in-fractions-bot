@@ -131,7 +131,7 @@ var listener = app.listen(process.env.PORT, function () {
 
 function constructFractionString(){
   const fraction=fractionThruYear(moment().dayOfYear(),moment().isLeapYear())
-  return `Today, we're approximately ${fraction.numerator}/${fraction.denominator} through the year!`
+  return `Today, we're ${fraction.approximate?'approximately ':''}${fraction.numerator}/${fraction.denominator} through the year!`
 }
 
 function fractionThruYear(day,isLeapYear){
@@ -150,6 +150,7 @@ function fractionThruYear(day,isLeapYear){
     day:day,
     numerator:Math.ceil(closest_match_value),
     denominator:closest_match,
-    closeness:(closest_match_value%1).toPrecision(3)
+    closeness:(closest_match_value%1).toPrecision(3),
+    approximate:closest_match==days_in_year
   }
 }

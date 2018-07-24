@@ -43,6 +43,10 @@ app.all("/check-output", function (request, response) {
   else response.send(constructFractionString())
 });
 
+app.all("/day-of-year", function (request, response) {
+  response.send(moment().dayOfYear()+' + '+moment().isLeapYear())
+});
+
 app.all("/dm-me/" + process.env.BOT_ENDPOINT,(req,res)=>{
   //console.log(req._parsedUrl.query)
   sendDM(req._parsedUrl.query||'test!',process.env.DM_AT,res)
@@ -160,6 +164,6 @@ function fractionThruYear(day,isLeapYear){
     numerator:Math.ceil(closest_match_value),
     denominator:closest_match,
     closeness:(closest_match_value%1).toPrecision(3),
-    approximate:closest_match_value<1
+    approximate:closest_match_value%1>0
   }
 }

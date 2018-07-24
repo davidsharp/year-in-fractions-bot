@@ -38,6 +38,11 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
     })
 });
 
+app.all("/check-output", function (request, response) {
+  if(request._parsedUrl.query && !isNaN(parseInt(request._parsedUrl.query))) response.send(JSON.stringify(fractionThruYear(parseInt(request._parsedUrl.query))))
+  else response.send(constructFractionString())
+});
+
 app.all("/dm-me/" + process.env.BOT_ENDPOINT,(req,res)=>{
   //console.log(req._parsedUrl.query)
   sendDM(req._parsedUrl.query||'test!',process.env.DM_AT,res)

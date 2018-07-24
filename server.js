@@ -39,8 +39,8 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
 });
 
 app.all("/check-output", function (request, response) {
-  if(request._parsedUrl.query && !isNaN(parseInt(request._parsedUrl.query))) response.send(JSON.stringify(fractionThruYear(parseInt(request._parsedUrl.query))))
-  else response.send(constructFractionString())
+  if(request._parsedUrl.query && !isNaN(parseInt(request._parsedUrl.query))) response.send(JSON.stringify(fractionThruYear(parseInt(request._parsedUrl.query),moment().isLeapYear())))
+  else response.send(JSON.stringify(fractionThruYear(moment().dayOfYear(),moment().isLeapYear())))
 });
 
 app.all("/day-of-year", function (request, response) {

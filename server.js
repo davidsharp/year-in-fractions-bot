@@ -160,6 +160,6 @@ function fractionThruYear(day,isLeapYear){
     numerator:Math.ceil(closest_match_value),
     denominator:closest_match,
     closeness:(closest_match_value%1).toPrecision(3),
-    approximate:closest_match_value!=1 && closest_match!=days_in_year
+    approximate:closest_match_value<1
   }
 }

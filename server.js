@@ -142,6 +142,10 @@ function fractionThruYear(day,isLeapYear){
     if(!closest_match_value || closest_match_value%1<closeness%1){
       closest_match=i
       closest_match_value=closeness
+    }else if(closeness==1){
+      closest_match=i
+      closest_match_value=closeness
+      break
     }
     i++
   }
@@ -151,6 +155,6 @@ function fractionThruYear(day,isLeapYear){
     numerator:Math.ceil(closest_match_value),
     denominator:closest_match,
     closeness:(closest_match_value%1).toPrecision(3),
-    approximate:closest_match!=days_in_year
+    approximate:closeness!=1 && closest_match!=days_in_year
   }
 }

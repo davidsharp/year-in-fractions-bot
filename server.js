@@ -151,7 +151,7 @@ function fractionThruYear(day,isLeapYear){
     if(!closest_match_value || closest_match_value%1<closeness%1){
       closest_match=i
       closest_match_value=closeness
-    }else if(closeness==1 || (i!==days_in_year && closeness%1==0)){//i!==days_in_year && closeness%1==0){
+    }else if(closest_match_value%1>0 && (closeness==1 || (i!==days_in_year && closeness%1==0))){
       closest_match=i
       closest_match_value=closeness
       break

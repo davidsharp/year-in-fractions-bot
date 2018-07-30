@@ -158,12 +158,14 @@ function fractionThruYear(day,isLeapYear){
     }
     i++
   }
+  // fixes rounding errors for denominators the same as 365/366
+  if(closest_match===days_in_year)closest_match_value=closest_match_value.toPrecision(3)
   //console.log('day ',day,' is approximately ',Math.ceil(closest_match_value),'/',closest_match,'through the year (to a closeness of ',(closest_match_value%1).toPrecision(3),')')
   return {
     day:day,
     numerator:Math.ceil(closest_match_value),
     denominator:closest_match,
-    closeness:(closest_match_value%1).toPrecision(3),
+    closeness:(closest_match_value%1),//.toPrecision(3),
     approximate:closest_match_value%1>0
   }
 }

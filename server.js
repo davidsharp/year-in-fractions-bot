@@ -149,13 +149,3 @@ function fractionThruYear(day,isLeapYear){
     approximate:closest_match_value%1>0
   }
 }
- //console.log(T._buildReqOpts)
-
-// monkey patch
-//(I wrote this to try and fix new functionality, but in doing it realised I just needed to update)
-/*function patchAndUnpatch(T,thenDo){
-  const old = T._buildReqOpts
-  T._buildReqOpts = require('./reqOptsPatch.js')(T)
-  thenDo()
-  T._buildReqOpts = old
-}*/

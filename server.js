@@ -70,44 +70,24 @@ function sendTweet(tweet,response){
 function sendDM(_message,recipient,response){
   var resp = response;
   
-  T.post("direct_messages/new", {
-    user_id: recipient,
-    text: _message
-  },function(err, data, response) {
+  T.post("direct_messages/events/new",
+         {"event":{
+           "type": "message_create",
+           "message_create":{
+             "target": {"recipient_id": recipient},
+             "message_data": {"text": _message}
+           }
+         }},
+         function(err, data, response) {
     if (err&&!err.draw){ //code 187
       if(resp)resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
       console.log('Error!');
       console.log(err);
     }
     else{
-      if(resp)resp.sendStatus(200);
+      if(resp)resp.send(response.code)
     }
   });
-  
-  /*var message={
-  "event": {
-    "type": "message_create",
-    "message_create": {
-      "target": {
-        "recipient_id": recipient
-      },
-      "message_data": {
-        "text": _message,
-      }
-    }
-  }
-  }
-  T.post('direct_messages/events/new', message, function(err, data, response) {
-    if (err&&!err.draw){ //code 187
-      if(resp)resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
-      console.log('Error!');
-      console.log(err);
-    }
-    else{
-      console.log(data)
-      if(resp)resp.send(response)//resp.sendStatus(200);
-    }
-  });*/
 }
 
 function drawTweet(imgURL,tweet,response,altText = "bot shared image"){ //TODO: handle base64 encoded dataURIs
@@ -169,3 +149,13 @@ function fractionThruYear(day,isLeapYear){
     approximate:closest_match_value%1>0
   }
 }
+ //console.log(T._buildReqOpts)
+
+// monkey patch
+//(I wrote this to try and fix new functionality, but in doing it realised I just needed to update)
+/*function patchAndUnpatch(T,thenDo){
+  const old = T._buildReqOpts
+  T._buildReqOpts = require('./reqOptsPatch.js')(T)
+  thenDo()
+  T._buildReqOpts = old
+}*/

@@ -23,20 +23,34 @@ app.use(express.static('public'));
 const signed = `\n(❤️🤖)${process.env.HASHTAG?'\n#'+process.env.HASHTAG:''}`
 
 /* You can use uptimerobot.com or a similar site to hit your /BOT_ENDPOINT to wake up your app and make your Twitter bot tweet. */
-
+//GET https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=twitterapi&count=2
 app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.log(moment(),afterMidday(moment()))
-    T.get('search/tweets', { q: 'yearinfractions', count: 100 }, function(err, data, _response) {
+    T.get(/*'search/tweets'*/'statuses/user_timeline', { /*q: 'yearinfractions'*/screen_name:'yearinfractions', count: 10 }, function(err, data, _response) {
       const isAfterEightAm = moment().isAfter(moment().set('hour',8).set('minute',0),'minute')
-      const didPostToday = data.statuses.filter(c=>c.user.screen_name=='yearinfractions').map(c=>moment().isSame(c.created_at,'day')).reduce((a,b)=>(a||b),false)
-      
+      const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='yearinfractions').filter(c=>moment().isSame(c.created_at,'day'))
+      const didPostToday = todaysTweets.length>0
+
       if(isAfterEightAm && !didPostToday){
         sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}
 (8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()}, response)
       }
+      else if (todaysTweets.length<2) checkYearProgressTweets(todaysTweets[0].id_str,response)
       else response.send("Don't tweet right now"+" --- "+moment().format())
     })
 });
+
+function checkYearProgressTweets(tweet_id,response/*created_at*/){
+  T.get(/*'search/tweets'*/'statuses/user_timeline', { /*q: 'yearinfractions'*/screen_name:'year_progress', count: 10 }, function(err, data, _response) {
+    const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='year_progress').filter(c=>moment().isSame(c.created_at,'day'))
+    const didPostToday = todaysTweets.length>0
+    if(didPostToday){
+      sendDM(`tried to tweet at year_progress!`,process.env.DM_AT)
+      sendTweet({status:`@year_progress https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
+    }
+    else response.send("Don't tweet right now"+" --- "+moment().format())
+  })
+}
 
 app.all("/check-output", function (request, response) {
   if(request._parsedUrl.query && !isNaN(parseInt(request._parsedUrl.query))) response.send(JSON.stringify(fractionThruYear(parseInt(request._parsedUrl.query),moment().isLeapYear())))

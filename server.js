@@ -66,6 +66,11 @@ app.all("/dm-me/" + process.env.BOT_ENDPOINT,(req,res)=>{
   sendDM(req._parsedUrl.query||'test!',process.env.DM_AT,res)
 })
 
+app.all('/poke-api/'+process.env.BOT_ENDPOINT+'/:bitone/:bittwo', function(request, response){
+  //console.log(request.params,request.query)
+  T.get(request.params.bitone+'/'+request.params.bittwo,request.query,(err,data)=>response.send(err||data))
+})
+
 function sendTweet(tweet,response){
   var resp = response;
   T.post('statuses/update', tweet, function(err, data, response) {

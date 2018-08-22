@@ -40,13 +40,14 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
     })
 });
 
+// this replies to year_progress when it tweets
 function checkYearProgressTweets(tweet_id,response/*created_at*/){
   T.get(/*'search/tweets'*/'statuses/user_timeline', { /*q: 'yearinfractions'*/screen_name:'year_progress', count: 10 }, function(err, data, _response) {
     const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='year_progress').filter(c=>moment().isSame(c.created_at,'day'))
     const didPostToday = todaysTweets.length>0
     if(didPostToday){
       sendDM(`tried to tweet at year_progress!`,process.env.DM_AT)
-      sendTweet({status:`@year_progress https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
+      sendTweet({status:`@year_progress${RegExp(3*23,'gi').test(todaysTweets[0])?' Nice.':''} https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
     }
     else response.send("Don't tweet right now"+" --- "+moment().format())
   })

@@ -47,7 +47,7 @@ function checkYearProgressTweets(tweet_id,response/*created_at*/){
     const didPostToday = todaysTweets.length>0
     if(didPostToday){
       sendDM(`tried to tweet at year_progress!`,process.env.DM_AT)
-      sendTweet({status:`@year_progress${RegExp(3*23,'gi').test(todaysTweets[0])?' Nice.':''} https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
+      sendTweet({status:`@year_progress${RegExp(3*23,'gi').test(todaysTweets[0]).text?' Nice.':''} https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
     }
     else response.send("Don't tweet right now"+" --- "+moment().format())
   })

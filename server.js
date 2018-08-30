@@ -58,6 +58,11 @@ app.all("/check-output", function (request, response) {
   else response.send(JSON.stringify(fractionThruYear(moment().dayOfYear(),moment().isLeapYear())))
 });
 
+app.all("/check-verbose-output", function (request, response) {
+  if(request._parsedUrl.query && !isNaN(parseInt(request._parsedUrl.query))) response.send(verboseFractionThruYear(parseInt(request._parsedUrl.query),moment().isLeapYear()))
+  else response.send(verboseFractionThruYear(moment().dayOfYear(),moment().isLeapYear()))
+});
+
 app.all("/day-of-year", function (request, response) {
   response.send(moment().dayOfYear()+' + '+moment().isLeapYear())
 });
@@ -168,4 +173,33 @@ function fractionThruYear(day,isLeapYear){
     closeness:(closest_match_value%1),//.toPrecision(3),
     approximate:closest_match_value%1>0
   }
+}
+
+function verboseFractionThruYear(day,isLeapYear){
+  var days_in_year=365+(isLeapYear?1:0);
+  var i=1; var closest_match=undefined; var closest_match_value=undefined;
+  
+  var fractions = []
+  
+  while(i<=days_in_year){
+    var closeness = day/days_in_year*i
+    closest_match=i
+    closest_match_value=closeness
+    
+    // fixes rounding errors for denominators the same as 365/366
+    if(closest_match===days_in_year)closest_match_value=closest_match_value.toPrecision(3)
+    //console.log('day ',day,' is approximately ',Math.ceil(closest_match_value),'/',closest_match,'through the year (to a closeness of ',(closest_match_value%1).toPrecision(3),')')
+    fractions.push( {
+      day:day,
+      numerator:Math.ceil(closest_match_value),
+      denominator:closest_match,
+      closeness:(closest_match_value%1),//.toPrecision(3),
+      approximate:closest_match_value%1>0
+    })
+    
+    i++
+  }
+  
+  return fractions.map(c=>JSON.stringify(c)).join('<br>')
+  
 }

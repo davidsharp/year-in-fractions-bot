@@ -35,7 +35,7 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
 (8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()}, response)
       }
-      else if (todaysTweets.length<2) checkYearProgressTweets(todaysTweets[0].id_str,response)
+      else if (todaysTweets.length==1) checkYearProgressTweets(todaysTweets[0].id_str,response)
       else response.send("Don't tweet right now"+" --- "+moment().format())
     })
 });

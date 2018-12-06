@@ -31,7 +31,7 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
       const didPostToday = todaysTweets.length>0
 
       if(isAfterEightAm && !didPostToday){
-        sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}
+        sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}!
 (8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()}, response)
       }
@@ -145,7 +145,8 @@ var listener = app.listen(process.env.PORT, function () {
 
 function constructFractionString(){
   const fraction=fractionThruYear(moment().dayOfYear(),moment().isLeapYear())
-  return `Today, we're ${fraction.approximate?'approximately ':''}${fraction.numerator}/${fraction.denominator} through the year!`
+  const isNice=isItNice(fraction.numerator)||isItNice(fraction.denominator)
+  return `Today, we're ${fraction.approximate?'approximately ':''}${fraction.numerator}/${fraction.denominator} through the year!${isNice?' (nice)':''}`
 }
 
 function fractionThruYear(day,isLeapYear){
@@ -203,3 +204,5 @@ function verboseFractionThruYear(day,isLeapYear){
   return fractions.map(c=>JSON.stringify(c)).join('<br>')
   
 }
+
+function isItNice(number){return parseInt(number)===69}

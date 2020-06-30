@@ -22,12 +22,33 @@ app.use(express.static('public'));
 
 const signed = `\n(❤️🤖)${process.env.HASHTAG?'\n#'+process.env.HASHTAG:''}`
 
+const hourlyFn = () => {
+  console.log('hourly')
+  T.get('statuses/user_timeline', { screen_name:'yearinfractions', count: 10 }, function(err, data, _response) {
+      const isAfterEightAm = moment().isAfter(moment().set('hour',8).set('minute',0),'minute')
+      const todaysTweets = data.filter(c=>c.user.screen_name=='yearinfractions').filter(c=>moment().isSame(moment(c.created_at, "ddd MMM DD hh:mm:ss Z YYYY"),'day'))
+      const didPostToday = todaysTweets.length>0
+      
+      console.log('checking')
+
+      if(isAfterEightAm && !didPostToday){
+        sendDM(`tried to tweet at ${moment().format()}! After 8AM? ${isAfterEightAm}! Already Posted Today? ${didPostToday}!
+(8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
+        sendTweet({status:constructFractionString()},false)
+      }
+      else if (todaysTweets.length==1) checkYearProgressTweets(todaysTweets[0].id_str,false,()=>sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false))
+      else sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false)
+    })
+}
+hourlyFn();
+setInterval(hourlyFn, 60*60*1000);
+
 /* You can use uptimerobot.com or a similar site to hit your /BOT_ENDPOINT to wake up your app and make your Twitter bot tweet. */
 //GET https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=twitterapi&count=2
 app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.log(moment(),afterMidday(moment()))
     T.get(/*'search/tweets'*/'statuses/user_timeline', { /*q: 'yearinfractions'*/screen_name:'yearinfractions', count: 10 }, function(err, data, _response) {
       const isAfterEightAm = moment().isAfter(moment().set('hour',8).set('minute',0),'minute')
-      const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='yearinfractions').filter(c=>moment().isSame(c.created_at,'day'))
+      const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='yearinfractions').filter(c=>moment().isSame(moment(c.created_at, "ddd MMM DD hh:mm:ss Z YYYY"),'day'))
       const didPostToday = todaysTweets.length>0
 
       if(isAfterEightAm && !didPostToday){
@@ -41,15 +62,16 @@ app.all("/" + process.env.BOT_ENDPOINT, function (request, response) {//console.
 });
 
 // this replies to year_progress when it tweets
-function checkYearProgressTweets(tweet_id,response/*created_at*/){
+function checkYearProgressTweets(tweet_id,response,callback=()=>{}){
   T.get(/*'search/tweets'*/'statuses/user_timeline', { /*q: 'yearinfractions'*/screen_name:'year_progress', count: 10 }, function(err, data, _response) {
-    const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='year_progress').filter(c=>moment().isSame(c.created_at,'day'))
+    const todaysTweets = data/*.statuses*/.filter(c=>c.user.screen_name=='year_progress').filter(c=>moment().isSame(moment(c.created_at, "ddd MMM DD hh:mm:ss Z YYYY"),'day'))
     const didPostToday = todaysTweets.length>0
     if(didPostToday){
       sendDM(`tried to tweet at year_progress!`,process.env.DM_AT)
       sendTweet({status:`@year_progress${RegExp(3*23,'gi').test(todaysTweets[0].text)?' Nice.':''} https://twitter.com/yearinfractions/status/${tweet_id}`,in_reply_to_status_id:todaysTweets[0].id_str}, response)
     }
-    else response.send("Don't tweet right now"+" --- "+moment().format())
+    else if(response)response.send("Don't tweet right now"+" --- "+moment().format())
+    else callback()
   })
 }
 
@@ -81,13 +103,13 @@ function sendTweet(tweet,response){
   var resp = response;
   T.post('statuses/update', tweet, function(err, data, response) {
     if (err&&!err.draw){ //code 187
-      resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
+      if(resp)resp.sendStatus(err.code&&err.code==187?err.statusCode:500);
       console.log('Error!');
       console.log(err);
     }
     else{
       //pubdate
-      resp.sendStatus(200);
+      if(resp)resp.sendStatus(200);
     }
   });
 }

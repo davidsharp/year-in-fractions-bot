@@ -15,7 +15,7 @@ var path = require('path'),
     T = new Twit(config.twitter),
     stream = T.stream('statuses/sample'),
     FeedParser = require('feedparser'),
-    request = require('request'),
+    //request = require('request'),
     moment = require('moment-timezone');
 moment.tz.setDefault(process.env.TIMEZONE||'Europe/London');
 app.use(express.static('public'));
@@ -36,8 +36,8 @@ const hourlyFn = () => {
 (8AM today is ${moment().set('hour',8).set('minute',0).format()})`,process.env.DM_AT)
         sendTweet({status:constructFractionString()},false)
       }
-      else if (todaysTweets.length==1) checkYearProgressTweets(todaysTweets[0].id_str,false,()=>sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false))
-      else sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false)
+      else if (todaysTweets.length==1) checkYearProgressTweets(todaysTweets[0].id_str,false)//,()=>sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false))
+      //else sendDM('Hourly interval, didn\'t tweet',process.env.DM_AT,false)
     })
 }
 hourlyFn();
@@ -138,7 +138,9 @@ function sendDM(_message,recipient,response){
 }
 
 function drawTweet(imgURL,tweet,response,altText = "bot shared image"){ //TODO: handle base64 encoded dataURIs
-  request({url: imgURL, encoding: 'base64'}, function (err, res, body) {
+  return null;
+  // TO-DO replace request
+  /*request({url: imgURL, encoding: 'base64'}, function (err, res, body) {
         if (!err && res.statusCode == 200) {
             // first we must post the media to Twitter
             T.post('media/upload', { media_data: body }, function (err, data, response) {
@@ -158,7 +160,7 @@ function drawTweet(imgURL,tweet,response,altText = "bot shared image"){ //TODO: 
         } else {
             response.sendStatus(500)
         }
-    });
+    });*/
 }
 
 var listener = app.listen(process.env.PORT, function () {
